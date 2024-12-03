@@ -1,10 +1,10 @@
 package services
 
+import com.amazonaws.AmazonClientException
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClientBuilder
-import com.amazonaws.services.dynamodbv2.model.ScanRequest
 import model.ConnectionSettings
 
 
@@ -37,8 +37,8 @@ class ConnectionService(
                 variableStore.connecting = false
             }
 
-        } catch (ex: Exception) {
-            println(ex.message)
+        } catch (ex: AmazonClientException) {
+            variableStore.errorMessage = ex.message ?: ""
             variableStore.connected = false
             variableStore.connecting = false
         }

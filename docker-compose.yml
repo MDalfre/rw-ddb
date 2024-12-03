@@ -1,7 +1,7 @@
 version: '3'
 services:
   localstack:
-    image: localstack/localstack:0.11.2
+    image: localstack/localstack:latest
     environment:
       - SERVICES=dynamodb
     ports:
@@ -9,5 +9,6 @@ services:
       - 4571:4571
       - 4510-4530:4510-4530
     volumes:
-      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+#      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./aws/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh"

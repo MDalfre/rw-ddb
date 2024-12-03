@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -19,11 +20,10 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import commons.DefaultColors
+import commons.DefaultStyle.MATERIAL_ICON_DIMENSION
 
 
 @Composable
@@ -55,7 +55,7 @@ fun CollapsableLazyColumn(
                     )
                     Text(
                         text = dataItem.title,
-                        color = Color.LightGray,
+                        color = DefaultColors.secondaryTintColor,
                         fontFamily = FontFamily.Monospace,
                         modifier = Modifier
                             .padding(vertical = 10.dp)
@@ -66,14 +66,16 @@ fun CollapsableLazyColumn(
             }
             if (!collapsed) {
                 items(dataItem.rows) { row ->
-                    Row {
-                        Spacer(modifier = Modifier.size(MaterialIconDimension.dp))
-                        Text(
-                            text = row,
-                            color = Color.LightGray,
-                            modifier = Modifier
-                                .padding(vertical = 10.dp)
-                        )
+                    SelectionContainer {
+                        Row {
+                            Spacer(modifier = Modifier.size(MATERIAL_ICON_DIMENSION.dp))
+                            Text(
+                                text = row,
+                                color = Color.LightGray,
+                                modifier = Modifier
+                                    .padding(vertical = 10.dp)
+                            )
+                        }
                     }
                     Divider()
                 }
@@ -83,5 +85,3 @@ fun CollapsableLazyColumn(
 }
 
 data class CollapsableSection(val title: String, val rows: List<String>)
-
-const val MaterialIconDimension = 24f
