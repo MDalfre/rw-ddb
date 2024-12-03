@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.amazonaws.services.dynamodbv2.document.Item
 import commons.DefaultColors
+import commons.DefaultStyle.MAX_CHARS_SIZE
 import services.VariableStore
 
 @Composable
@@ -18,6 +19,7 @@ fun TableItemView(variableStore: VariableStore) {
         verticalArrangement = Arrangement.Top,
         modifier = Modifier.background(DefaultColors.backgroundColor).fillMaxSize()
     ) {
+        QuerySelector(variableStore)
         CollapsableLazyColumn(
             variableStore.listedItems.map { CollapsableSection(it.toTitle(), listOf(it.toJSONPretty())) }
         )
@@ -25,10 +27,11 @@ fun TableItemView(variableStore: VariableStore) {
 }
 
 fun Item.toTitle(): String {
+    val textSize = MAX_CHARS_SIZE
     val text = this.toJSON()
-    return if (text.length > 20) {
-        "${text.take(20)}..."
+    return if (text.length > textSize) {
+        "${text.take(textSize)}..."
     } else {
-        text.take(20)
+        text.take(textSize)
     }
 }

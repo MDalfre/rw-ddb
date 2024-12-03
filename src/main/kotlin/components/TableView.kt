@@ -5,16 +5,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
-import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import connection
 import services.DynamoService
 import services.VariableStore
 
+@Suppress("LongMethod")
 @Composable
 fun TableView(variableStore: VariableStore) {
     Column(
@@ -38,7 +40,12 @@ fun TableView(variableStore: VariableStore) {
         modifier = Modifier.background(DefaultColors.thirdColor).fillMaxHeight().padding(start = 5.dp, end = 5.dp)
             .widthIn(50.dp, 150.dp)
     ) {
-        Text(text = "Collections", fontFamily = FontFamily.Monospace, color = DefaultColors.secondaryColor)
+        Text(
+            modifier = Modifier.padding(top = 5.dp),
+            text = "Collections",
+            fontFamily = FontFamily.Monospace,
+            color = DefaultColors.tintColor
+        )
         LazyColumn {
             items(variableStore.listedTables) {
                 Card(
@@ -47,9 +54,15 @@ fun TableView(variableStore: VariableStore) {
                         .padding(start = 5.dp, end = 5.dp, top = 5.dp, bottom = 5.dp)
                         .clickable {
                             val dynamoService = DynamoService(connection)
+                            variableStore.selectedTable = it
                             variableStore.listedItems = dynamoService.scanTable(it) ?: mutableListOf()
                         },
-                    backgroundColor = DefaultColors.backgroundColor,
+                    backgroundColor = variableStore.onSelectedCollectionColor(
+                        default = DefaultColors.backgroundColor,
+                        selected = DefaultColors.selectedColor,
+                        currentItem = it
+                    ),
+                    border = BorderStroke(1.dp, Brush.linearGradient(DefaultColors.gradientColors)),
                     elevation = 10.dp
                 ) {
                     Column(
@@ -57,7 +70,11 @@ fun TableView(variableStore: VariableStore) {
                     ) {
                         Text(
                             style = TextStyle(fontFamily = FontFamily.Monospace),
-                            color = DefaultColors.secondaryColor,
+                            color = variableStore.onSelectedCollectionColor(
+                                default = DefaultColors.secondaryTintColor,
+                                selected = DefaultColors.backgroundColor,
+                                currentItem = it
+                            ),
                             text = it
                         )
                     }
@@ -89,4 +106,8 @@ fun TableView(variableStore: VariableStore) {
         }
     }
     TableItemView(variableStore)
+}
+
+private fun VariableStore.onSelectedCollectionColor(default: Color, selected: Color, currentItem: String): Color {
+    return if (this.selectedTable == currentItem) selected else default
 }
