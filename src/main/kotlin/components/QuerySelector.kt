@@ -162,7 +162,7 @@ fun QueryModeSearchHash(variableStore: VariableStore) {
                         tableName = variableStore.selectedTable,
                         hashKey = variableStore.queryModeHashKey,
                         value = variableStore.queryModeHashKeyValue
-                    ).also { variableStore.listedItems = listOf(it) }
+                    ).also { variableStore.listedItems = mutableListOf(it) }
                 }
             },
             border = BorderStroke(1.dp, DefaultColors.tintColor),
@@ -209,7 +209,7 @@ fun QueryModeScan(variableStore: VariableStore) {
             onClick = {
                 GlobalScope.launch {
                     dynamoService.scanTable(variableStore.selectedTable, variableStore.queryModeScan.toInt())
-                        .also { variableStore.listedItems = it?.toList() ?: emptyList() }
+                        .also { variableStore.listedItems = it ?: mutableListOf() }
                 }
             },
             border = BorderStroke(1.dp, DefaultColors.tintColor),

@@ -4,14 +4,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import commons.DefaultColors
+import commons.ImageHelper
 import components.ConnectionIndicator
 import components.TableView
 import components.connectionForm
@@ -47,7 +49,7 @@ fun main() = application {
         state = WindowState(WindowPlacement.Maximized),
         onCloseRequest = ::exitApplication,
         title = "RW-DDB",
-        icon = painterResource("rw-ddb4.png")
+        icon = remember { BitmapPainter(ImageHelper().loadImageBitmap("rw-ddb4.png")) }
     ) {
         App()
     }

@@ -11,6 +11,7 @@ import com.amazonaws.services.dynamodbv2.document.Item
 import commons.DefaultColors
 import commons.DefaultStyle.MAX_CHARS_SIZE
 import services.VariableStore
+import utils.findSchemaKey
 
 @Composable
 fun TableItemView(variableStore: VariableStore) {
@@ -21,14 +22,15 @@ fun TableItemView(variableStore: VariableStore) {
     ) {
         QuerySelector(variableStore)
         CollapsableLazyColumn(
-            variableStore.listedItems.map { CollapsableSection(it.toTitle(), listOf(it.toJSONPretty())) }
+            variableStore = variableStore
         )
     }
 }
 
-fun Item.toTitle(): String {
+fun Item.toTitle(variableStore: VariableStore): String {
+    val id = findSchemaKey(variableStore.selectedTableSchema)
     val textSize = MAX_CHARS_SIZE
-    val text = this.toJSON()
+    val text = this.asMap()[id.attributeName].toString()
     return if (text.length > textSize) {
         "${text.take(textSize)}..."
     } else {

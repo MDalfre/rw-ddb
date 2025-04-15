@@ -23,17 +23,20 @@ import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.amazonaws.regions.Regions
 import commons.DefaultColors
 import commons.DefaultStyle.MATERIAL_ICON_DIMENSION
+import commons.ImageHelper
 import connection
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -56,15 +59,15 @@ fun connectionForm(
         modifier = Modifier.background(DefaultColors.backgroundColor).fillMaxSize()
     ) {
         Image(
-            modifier =  Modifier.size(200.dp),
-            painter = painterResource("rw-ddb4.png"),
+            modifier = Modifier.size(200.dp),
+            painter = remember { BitmapPainter(ImageHelper().loadImageBitmap("rw-ddb4.png")) },
             contentScale = ContentScale.Fit,
             contentDescription = "RW-DDB",
             alignment = Alignment.BottomStart,
-//            colorFilter = ColorFilter.tint(DefaultColors.backgroundColor, BlendMode.Modulate)
         )
         Spacer(modifier = Modifier.size(MATERIAL_ICON_DIMENSION.dp))
         CredentialTypeDropdown(variableStore)
+        RegionDropdown(variableStore)
         DefaultTextField(
             text = "Server URL",
             value = variableStore.serverUrl,
@@ -89,12 +92,6 @@ fun connectionForm(
             )
         }
 
-        DefaultTextField(
-            text = "Region",
-            value = variableStore.selectedRegion,
-            onValueChange = { println(it) }
-        )
-
         Spacer(modifier = Modifier.size(MATERIAL_ICON_DIMENSION.dp))
 
         OutlinedButton(
@@ -111,7 +108,7 @@ fun connectionForm(
                     accessKey = variableStore.accessKey,
                     secretKey = variableStore.secretKey,
                     sessionKey = variableStore.sessionKey,
-                    serverRegion = Regions.valueOf(variableStore.selectedRegion)
+                    serverRegion = variableStore.selectedRegion
                 )
                 GlobalScope.launch {
                     variableStore.connecting = true
@@ -148,11 +145,12 @@ fun CredentialTypeDropdown(variableStore: VariableStore) {
         BasicTextField(
             value = variableStore.selectedCredential,
             readOnly = true,
-            textStyle = LocalTextStyle.current.copy(color = DefaultColors.tintColor),
+            textStyle = LocalTextStyle.current.copy(color = DefaultColors.tintColor, textAlign = TextAlign.Center),
             onValueChange = {},
             decorationBox = {
                 Column(
-                    Modifier
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
                         .width(300.dp)
                         .border(0.5.dp, color = DefaultColors.secondaryColor, shape = RoundedCornerShape(5.dp))
                         .height(30.dp)
@@ -163,13 +161,65 @@ fun CredentialTypeDropdown(variableStore: VariableStore) {
             }
         )
         ExposedDropdownMenu(
-            variableStore.expandedCredential,
+            expanded = variableStore.expandedCredential,
             onDismissRequest = { variableStore.expandedCredential = !variableStore.expandedCredential }) {
             CredentialType.entries.forEach {
                 DropdownMenuItem(
                     onClick = {
                         variableStore.selectedCredential = it.name
                         variableStore.expandedCredential = !variableStore.expandedCredential
+                    }
+                ) {
+                    Text(
+                        fontFamily = FontFamily.Monospace,
+                        text = it.name
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun RegionDropdown(variableStore: VariableStore) {
+    Text(
+        text = "Region",
+        color = DefaultColors.secondaryColor,
+        style = TextStyle(fontFamily = FontFamily.Monospace),
+        modifier = Modifier.padding(bottom = 5.dp)
+    )
+    ExposedDropdownMenuBox(
+        expanded = variableStore.expandedRegion,
+        onExpandedChange = { variableStore.expandedRegion = !variableStore.expandedRegion },
+    ) {
+        BasicTextField(
+            value = variableStore.selectedRegion.toString(),
+            readOnly = true,
+            textStyle = LocalTextStyle.current.copy(color = DefaultColors.tintColor, textAlign = TextAlign.Center),
+            onValueChange = {},
+            decorationBox = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .width(300.dp)
+                        .border(0.5.dp, color = DefaultColors.secondaryColor, shape = RoundedCornerShape(5.dp))
+                        .height(30.dp)
+                        .padding(5.dp)
+                ) {
+                    it()
+                }
+            }
+        )
+        ExposedDropdownMenu(
+            variableStore.expandedRegion,
+            onDismissRequest = { variableStore.expandedRegion = !variableStore.expandedRegion }) {
+            Regions.entries.forEach {
+                DropdownMenuItem(
+                    onClick = {
+                        println(variableStore.selectedRegion)
+                        variableStore.selectedRegion = it
+                        variableStore.expandedRegion = !variableStore.expandedRegion
                     }
                 ) {
                     Text(
