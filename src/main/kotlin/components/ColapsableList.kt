@@ -111,7 +111,7 @@ fun CollapsableLazyColumn(
                                         keySchemaElement = variableStore.selectedTableSchema,
                                         json = content
                                     )
-                                    variableStore.listedItems.removeAt(i)
+                                    variableStore.listedItems = variableStore.listedItems.toMutableList().apply { removeAt(i) }
                                     variableStore.collapsableSection.removeAt(i)
                                     collapsedState[i] = !collapsedState[i]
                                 }
