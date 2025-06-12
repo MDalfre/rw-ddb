@@ -6,7 +6,8 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue
 import com.amazonaws.services.dynamodbv2.model.GetItemRequest
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import com.amazonaws.services.dynamodbv2.model.ScanRequest
-import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest
+import com.amazonaws.services.dynamodbv2.model.AttributeAction
+import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import utils.findSchemaKey
 
@@ -63,12 +64,17 @@ class DynamoService(private val connectionService: ConnectionService?) {
         val id = findSchemaKey(keySchemaElement).attributeName
         val value = jacksonObjectMapper().readTree(json).findValue(id).textValue()
         val idValueMap = mapOf<String, AttributeValue>(id to AttributeValue().withS(value))
-        Item.fromJSON(json).attributes()
-        val updateRequest = UpdateItemRequest().run {
-            key = idValueMap
-        }
-        connectionService?.dynamoDb?.updateItem(tableName, idValueMap, attributes)
+        val itemAttributesFromJSON = Item.fromJSON(json).attributes()
+
+        val attributeUpdates = itemAttributesFromJSON
+            .filterNot { (key, _) -> key == id }
+            .associate { (key, attributeValue) ->
+                key to AttributeValueUpdate().withValue(InternalUtils.toAttributeValue(attributeValue)).withAction(AttributeAction.PUT)
+            }
+
+        connectionService?.dynamoDb?.updateItem(tableName, idValueMap, attributeUpdates)
     }
+
 
     private fun AttributeValue.toPrimitive(): Any? {
         return when {
